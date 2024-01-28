@@ -1,6 +1,7 @@
 package com.github.crazyrunsnail.template.dto;
 
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,13 +13,13 @@ import lombok.NoArgsConstructor;
 @Builder
 public class ApiResponse<T> {
 
-    private T data;
-
-
+    @Schema(description = "接口码：0-成功，1-失败，10002-未登录或者token过期", example = "0")
     private Integer code;
 
-
+    @Schema(description = "接口消息")
     private String message;
+
+    private T data;
 
 
     @SuppressWarnings(value = {"unchecked"})

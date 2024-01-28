@@ -13,3 +13,12 @@ mybatis:
     map-underscore-to-camel-case: true
     default-fetch-size: 100
     default-statement-timeout: 30
+
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    url: /api-docs
+    tagsSorter: alpha
+    operationsSorter: method
