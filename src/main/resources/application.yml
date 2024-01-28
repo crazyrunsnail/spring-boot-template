@@ -2,6 +2,10 @@ spring:
   profiles:
     active: dev
 
+  mvc:
+    format:
+      date: yyyy-MM-dd HH:mm:ss
+
 
 mybatis:
   mapper-locations: classpath:mapper/**.xml
