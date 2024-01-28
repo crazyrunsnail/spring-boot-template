@@ -1,6 +1,7 @@
 package com.github.crazyrunsnail.template.controller.global;
 
 import com.github.crazyrunsnail.template.dto.ApiResponse;
+import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.FieldError;
@@ -36,6 +37,12 @@ public class GlobalControllerAdvice {
         FieldError error = (FieldError) ex.getBindingResult().getAllErrors().iterator().next();
         return ApiResponse.fail(422, "参数校验失败：[" + error.getField() + "]" +
                 error.getDefaultMessage());
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ApiResponse<?> onConstraintValidationException(ConstraintViolationException e) {
+        return ApiResponse.fail(422,
+                String.format("参数校验失败：%s", e.getConstraintViolations().iterator().next().getMessage()));
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
