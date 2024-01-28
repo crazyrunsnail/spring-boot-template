@@ -1,4 +1,10 @@
 
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/spring-boot-template
+    username: spring-boot-template
+    password: spring-boot-template
+
 management:
   endpoints:
     web:
