@@ -14,6 +14,11 @@ mybatis:
     default-fetch-size: 100
     default-statement-timeout: 30
 
+pagehelper:
+  helperDialect: postgresql
+  supportMethodsArguments: true
+  params: count=countSql
+
 
 springdoc:
   api-docs:

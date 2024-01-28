@@ -26,6 +26,12 @@
         from users
         where username = #{username}
     </select>
+    <select id="selectAllByCreatedAtPage" resultType="com.github.crazyrunsnail.template.model.User">
+        select
+        <include refid="Base_Column_List" />
+        from users
+        where created_at &gt;= #{gtLocalDate}
+    </select>
     <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
         delete from users
         where id = #{id,jdbcType=BIGINT}
