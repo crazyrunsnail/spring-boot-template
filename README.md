@@ -47,6 +47,7 @@ SpringBoot很方便，但不能开箱即用，现在开源的脚手架又过于�
 3. 新增对应的 Controller 调用对应 Service 并对结果进行包装和文档化
 
 ## 为什么这么做
-[为什么这么做](WHY.md)
+请查看这里：[为什么这么做](WHY.md)
 
+---
 **Have fun coding!**
