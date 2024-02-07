@@ -14,3 +14,5 @@ create table users (
  created_at timestamp default current_timestamp,
  updated_at timestamp default current_timestamp
 );
+
+insert into users (username, name , password) values ('admin', '管理员', '$2a$10$CgUdJJ2F2GmrEqcqyMtWluC.dEU.9t4aZzQqsHi0HlQLa410vkXby');
