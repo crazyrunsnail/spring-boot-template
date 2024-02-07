@@ -5,11 +5,14 @@ import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.FieldError;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
+
+import java.util.Arrays;
 
 
 @Slf4j
@@ -30,6 +33,12 @@ public class GlobalControllerAdvice {
     @ExceptionHandler(NoResourceFoundException.class)
     public ApiResponse<?> handleException(NoResourceFoundException ex) {
         return ApiResponse.fail(404, "访问的资源不存在");
+    }
+
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ApiResponse<?> handleHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException e) {
+        return ApiResponse.fail(405, String.format("请求方法[%s]不支持，使用：%s", e.getMethod(),
+                Arrays.toString(e.getSupportedMethods())));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
