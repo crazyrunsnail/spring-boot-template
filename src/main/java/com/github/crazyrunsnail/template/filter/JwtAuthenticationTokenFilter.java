@@ -1,6 +1,5 @@
 package com.github.crazyrunsnail.template.filter;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.github.crazyrunsnail.template.dto.ApiResponse;
 import com.github.crazyrunsnail.template.dto.user.UserDetailsDTO;
 import com.github.crazyrunsnail.template.mapper.UserMapper;
@@ -17,17 +16,15 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @Slf4j
 @Component
@@ -37,6 +34,9 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
     private final static String TOKEN_HEADER = "Authorization";
     private final static String TOKEN_HEAD = "Bearer ";
     private final static String LOGIN_PATH = "/api/user/login";
+
+    private final static String X_TOKEN_HEADER = "x-token";
+
 
     private final UserMapper userMapper;
 
@@ -54,12 +54,13 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
             return;
         }
 
-        String authHeader = request.getHeader(TOKEN_HEADER);
-        if (authHeader == null || !authHeader.startsWith(TOKEN_HEAD)) {
+        String authHeader = Optional.ofNullable(request.getHeader(TOKEN_HEADER)).orElse(request.getHeader(X_TOKEN_HEADER));
+        if (authHeader == null) {
             filterChain.doFilter(request, response);
             return;
         }
-        String authToken = authHeader.substring(TOKEN_HEAD.length()); // The part after "Bearer "
+
+        String authToken = authHeader.replace(TOKEN_HEAD, ""); // The part after "Bearer "
 
         String username = jwtUtils.getUserNameFromToken(authToken);
         if (!jwtUtils.validateToken(authToken, username)) {
