@@ -3,10 +3,7 @@ package com.github.crazyrunsnail.template.controller;
 
 import com.github.crazyrunsnail.template.dto.ApiResponse;
 import com.github.crazyrunsnail.template.dto.page.PageResult;
-import com.github.crazyrunsnail.template.dto.user.LoginParam;
-import com.github.crazyrunsnail.template.dto.user.LoginResult;
-import com.github.crazyrunsnail.template.dto.user.UserDetailsDTO;
-import com.github.crazyrunsnail.template.dto.user.UserSearchParam;
+import com.github.crazyrunsnail.template.dto.user.*;
 import com.github.crazyrunsnail.template.model.User;
 import com.github.crazyrunsnail.template.service.UserService;
 import com.github.crazyrunsnail.template.util.JsonUtils;
@@ -41,7 +38,7 @@ public class UserController {
 
     @GetMapping("/info")
     @Operation(summary = "用户信息", description = "用户信息")
-    public ApiResponse<User> info(@AuthenticationPrincipal UserDetailsDTO userDetails) {
+    public ApiResponse<UserDTO> info(@AuthenticationPrincipal UserDetailsDTO userDetails) {
         log.info("Get info: {}", userDetails.getId());
         return ApiResponse.ok(userService.getById(userDetails.getId()));
     }

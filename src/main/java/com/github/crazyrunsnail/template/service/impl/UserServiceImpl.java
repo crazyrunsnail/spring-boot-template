@@ -1,9 +1,12 @@
 package com.github.crazyrunsnail.template.service.impl;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.github.crazyrunsnail.template.dto.user.UserDTO;
 import com.github.crazyrunsnail.template.dto.user.UserSearchParam;
 import com.github.crazyrunsnail.template.mapper.UserMapper;
 import com.github.crazyrunsnail.template.model.User;
 import com.github.crazyrunsnail.template.service.UserService;
+import com.github.crazyrunsnail.template.util.JsonUtils;
 import com.github.crazyrunsnail.template.util.JwtUtils;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
@@ -15,6 +18,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -42,13 +47,17 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User getById(Long id) {
-        return userMapper.selectByPrimaryKey(id);
+    public UserDTO getById(Long id) {
+        User user = userMapper.selectByPrimaryKey(id);
+        return UserDTO.builder().id(user.getId()).name(user.getName()).username(user.getUsername())
+                .roles(JsonUtils.parse(Optional.ofNullable(user.getRolesArrayJson()).orElse("[]"),
+                        new TypeReference<List<String>>() {
+                        })).build();
     }
 
     @Override
     public Page<User> getBySearchParam(UserSearchParam param) {
-        PageHelper.startPage( param.getPage(), param.getPer());
+        PageHelper.startPage(param.getPage(), param.getPer());
         return userMapper.selectBySearchParam(param);
     }
 }
