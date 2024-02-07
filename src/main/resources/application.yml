@@ -6,6 +6,11 @@ spring:
     format:
       date: yyyy-MM-dd HH:mm:ss
 
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
+    default-property-inclusion: non_null
+
 
 mybatis:
   mapper-locations: classpath:mapper/**.xml
