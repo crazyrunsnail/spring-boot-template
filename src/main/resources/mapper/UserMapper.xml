@@ -133,4 +133,19 @@
         updated_at = #{updatedAt,jdbcType=TIMESTAMP}
         where id = #{id,jdbcType=BIGINT}
     </update>
+    <select id="selectBySearchParam" resultType="com.github.crazyrunsnail.template.model.User">
+        select
+        <include refid="Base_Column_List" />
+        from users
+        where 1 = 1
+        <if test="name != null">
+            and name like concat(#{name}, '%')
+        </if>
+        <if test="from != null">
+            and created_at &gt;= #{from}
+        </if>
+        <if test="to != null">
+            and created_at &lt; #{to}
+        </if>
+    </select>
 </mapper>

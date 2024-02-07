@@ -1,9 +1,12 @@
 package com.github.crazyrunsnail.template.service.impl;
 
+import com.github.crazyrunsnail.template.dto.user.UserSearchParam;
 import com.github.crazyrunsnail.template.mapper.UserMapper;
 import com.github.crazyrunsnail.template.model.User;
 import com.github.crazyrunsnail.template.service.UserService;
 import com.github.crazyrunsnail.template.util.JwtUtils;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -36,5 +39,16 @@ public class UserServiceImpl implements UserService {
         userMapper.updateByPrimaryKeySelective(updateUser);
 
         return jwtUtils.generateToken(user.getUsername());
+    }
+
+    @Override
+    public User getById(Long id) {
+        return userMapper.selectByPrimaryKey(id);
+    }
+
+    @Override
+    public Page<User> getBySearchParam(UserSearchParam param) {
+        PageHelper.startPage( param.getPage(), param.getPer());
+        return userMapper.selectBySearchParam(param);
     }
 }
