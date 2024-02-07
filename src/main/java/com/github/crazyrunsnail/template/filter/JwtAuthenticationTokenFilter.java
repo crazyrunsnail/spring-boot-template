@@ -2,6 +2,7 @@ package com.github.crazyrunsnail.template.filter;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.github.crazyrunsnail.template.dto.ApiResponse;
+import com.github.crazyrunsnail.template.dto.user.UserDetailsDTO;
 import com.github.crazyrunsnail.template.mapper.UserMapper;
 import com.github.crazyrunsnail.template.model.User;
 import com.github.crazyrunsnail.template.util.JsonUtils;
@@ -12,6 +13,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -59,20 +61,29 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
         }
         String authToken = authHeader.substring(TOKEN_HEAD.length()); // The part after "Bearer "
 
-
         String username = jwtUtils.getUserNameFromToken(authToken);
-
         if (!jwtUtils.validateToken(authToken, username)) {
             SecurityContextHolder.clearContext();
-            response.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE + ";charset=UTF-8");
-            response.getOutputStream().write(JsonUtils.toString(ApiResponse.fail(10002, "Token无效或已过期"))
-                    .getBytes(StandardCharsets.UTF_8));
-            response.getOutputStream().flush();
+            writeToResponse(response, 10002, "Token无效或已过期");
             return;
         }
 
-        User user = this.userMapper.selectByUsername(username);
-        UserDetails userDetails = toUserDetails(user);
+        User user;
+        try {
+            user = this.userMapper.selectByUsername(username);
+        } catch (Exception e) {
+            log.error("userMapper.selectByUsername error: {}", e.getMessage(), e);
+            writeToResponse(response, 500, "服务器异常：数据库查询失败");
+            return;
+        }
+
+        if (Objects.isNull(user)) {
+            SecurityContextHolder.clearContext();
+            writeToResponse(response, 10002, "Token已过时失效");
+            return;
+        }
+
+        UserDetailsDTO userDetails = toUserDetails(user);
         UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, userDetails.getPassword(), userDetails.getAuthorities());
         authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
         SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -81,12 +92,18 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
 
     }
 
+    private void writeToResponse(HttpServletResponse response, int code, String message) throws IOException {
+        response.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE + ";charset=UTF-8");
+        response.getOutputStream().write(JsonUtils.toString(ApiResponse.fail(code, message))
+                .getBytes(StandardCharsets.UTF_8));
+        response.getOutputStream().flush();
+    }
 
-    private UserDetails toUserDetails(User user) {
-        List<String> roles = JsonUtils.parse(user.getRolesArrayJson(), new TypeReference<List<String>>() {
-        });
-        List<SimpleGrantedAuthority> authorities = roles.stream().map(role -> new SimpleGrantedAuthority("ROLE_" + role)).toList();
-        return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), authorities);
+
+    private UserDetailsDTO toUserDetails(User user) {
+        UserDetailsDTO userDetails = new UserDetailsDTO();
+        BeanUtils.copyProperties(user, userDetails);
+        return userDetails;
     }
 
 
